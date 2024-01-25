@@ -43,10 +43,10 @@ class RabitDatabase extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> updateHabitCompletion(int id, bool isCompleted) async {
+  Future<void> updateHabitCompletion(int id, bool check) async {
     final habit = await isar.habits.get(id);
     if (habit != null) {
-      if (isCompleted) {
+      if (check) {
         habit.completedDays.add(DateTime.now());
       } else {
         habit.completedDays.removeLast();
