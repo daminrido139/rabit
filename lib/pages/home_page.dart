@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:rabit/components/my_drawer.dart';
 import 'package:rabit/components/my_habit_tile.dart';
+import 'package:rabit/components/my_heat_map.dart';
 import 'package:rabit/database/rabit_database.dart';
 import 'package:rabit/util/habit_util.dart';
 
@@ -135,7 +136,6 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void initState() {
-    Provider.of<RabitDatabase>(context, listen: false).readHabits();
     todayDate = formatTodayDate();
     super.initState();
   }
@@ -149,34 +149,52 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
-      appBar: AppBar(
-        toolbarHeight: 100,
-        title: Text(
-          todayDate,
-          style: Theme.of(context).textTheme.titleLarge,
-        ),
-        actions: [
-          IconButton(
-            onPressed: () {},
-            icon: const Icon(
-              Icons.calendar_month,
-              size: 28,
-            ),
+        backgroundColor: Theme.of(context).colorScheme.background,
+        appBar: AppBar(
+          toolbarHeight: 100,
+          title: Text(
+            todayDate,
+            style: Theme.of(context).textTheme.titleLarge,
           ),
-          const SizedBox(width: 20)
-        ],
-        backgroundColor: Colors.transparent,
-      ),
-      drawer: const MyDrawer(),
-      floatingActionButton: FloatingActionButton(
-        shape: const CircleBorder(),
-        backgroundColor: Theme.of(context).colorScheme.secondary,
-        onPressed: createNewHabit,
-        elevation: 0,
-        child: const Icon(Icons.add),
-      ),
-      body: _buildHabitList(),
+          actions: const [],
+          backgroundColor: Colors.transparent,
+        ),
+        drawer: const MyDrawer(),
+        floatingActionButton: FloatingActionButton(
+          shape: const CircleBorder(),
+          backgroundColor: Theme.of(context).colorScheme.secondary,
+          onPressed: createNewHabit,
+          elevation: 0,
+          child: const Icon(Icons.add),
+        ),
+        body: ListView(children: [
+          _buildHeatMap(),
+          const SizedBox(height: 10),
+          _buildHabitList(),
+          const SizedBox(height: 100),
+        ]),
+        bottomNavigationBar: BottomAppBar(
+          color: Theme.of(context).colorScheme.tertiary,
+        ));
+  }
+
+  Widget _buildHeatMap() {
+    final RabitDatabase database =
+        Provider.of<RabitDatabase>(context, listen: false);
+    return FutureBuilder(
+      future: database.getFirstLaunchDate(),
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          return Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: MyHeatMap(
+                startDate: snapshot.data!,
+                datasets: buildHeatMapDataset(
+                    Provider.of<RabitDatabase>(context).currentHabitsLog)),
+          );
+        }
+        return const SizedBox();
+      },
     );
   }
 
@@ -184,10 +202,12 @@ class _HomePageState extends State<HomePage> {
     final habitList = Provider.of<RabitDatabase>(context).currentHabits;
 
     return ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
       itemCount: habitList.length,
       itemBuilder: (context, index) {
         final habit = habitList[index];
-        bool isCompletedToday = isHabitCompletedToday(habit.completedDays);
+        bool isCompletedToday = habit.isCompleted;
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
           child: MyHabitTile(

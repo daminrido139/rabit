@@ -7,7 +7,7 @@ import 'package:rabit/theme/theme_provider.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await RabitDatabase.initialize();
-  await RabitDatabase().saveFirstLaunchDate();
+  await RabitDatabase.saveFirstLaunchDate();
   runApp(
     MultiProvider(
       providers: [

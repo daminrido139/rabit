@@ -6,7 +6,7 @@ ThemeData darkMode = ThemeData(
     background: Color.fromRGBO(126, 74, 75, 1),
     primary: Color.fromRGBO(63, 37, 38, 1),
     secondary: Color.fromRGBO(251, 195, 197, 1),
-    tertiary: Color.fromRGBO(189, 135, 136, 1),
+    tertiary: Color.fromRGBO(95, 56, 57, 1),
   ),
   textTheme: const TextTheme(
     titleLarge: TextStyle(
